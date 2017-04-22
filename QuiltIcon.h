@@ -25,17 +25,13 @@ namespace emu {
             typedef std::tuple<Parameter<double>, Parameter<double>, Parameter<double>, Parameter<double>,
                     Parameter<double>, Parameter<double> > Pt_t;
 
-
-            long x_sz;
-            long y_sz;
-
         public:
             static double pi;
             static double p2;
 
         public:
             QuiltIcon(const double _lambda, const double _alpha, const double _beta, const double _gamma,
-                      const double _omega, const double _ma, long i, long i1) :
+                      const double _omega, const double _ma) :
                     lambda{new P_t("lambda", _lambda)}, alpha{new P_t("alpha", _alpha)},
                     beta{new P_t("beta", _beta)}, gamma{new P_t("gamma", _gamma)}, omega{new P_t("omega", _omega)},
                     ma{new P_t("ma", _ma)} {
@@ -45,9 +41,7 @@ namespace emu {
                                            shared_ptr<P_t>(omega), shared_ptr<P_t>(ma));
                 //  parameters = std::make_tuple(lambda,alpha,beta,gamma,omega,ma);
                 //   IterativeFunction(*())
-                x_sz = i;
-                y_sz = i1;
-            }
+           }
 
             QuiltIcon(QuiltIcon &qi) : IterativeFunction<P_t, P_t, P_t, P_t, P_t, P_t>(qi) { }
 
@@ -69,8 +63,6 @@ namespace emu {
 
             virtual void setValue(double _lambda, double _alpha, double _beta, double _gamma, double _omega,
                                   double _ma);
-
-            virtual void setSz(long, long);
 
             static void generate1(double inputPoint[], double lambda, double alpha, double beta, double gamma,
                                   double omega, double ma);

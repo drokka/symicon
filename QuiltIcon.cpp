@@ -73,10 +73,6 @@ void QuiltIcon::setParameters(double *const pDouble) {
 }
 ****************************/
 
-void QuiltIcon::setSz(long i, long i1) {
-    x_sz = i;
-    y_sz = i1;
-}
 /************
 QuiltIcon::QuiltIcon() : Icon(6, 0) {
     pi = acos(-1); p2 = 2*pi;

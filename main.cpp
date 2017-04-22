@@ -3,18 +3,34 @@
 #include "QuiltIcon.h"
 
 #include "Generator.h"
+#include "PaintIcon.h"
 #include <cairo.h>
+#include <ctime>
+#include <fstream>
+
 
 using namespace std;
 using namespace emu::symicon;
 
 int main(int nparam, char** param) {
 
-    int sz=800;
-    long iterations = 100000;
+    long iterations = 1000000;
+    if(nparam >1){
+        try {
+            iterations = atol(param[1]);
+        }catch (...){//do nothing
+        }
+    }
+    PointList hl;
+    int sz = 1600;
+    hl.addTable(sz); //add a fine scale
+    hl.addPoints();
+    cairo_surface_t *surface = cairo_image_surface_create (CAIRO_FORMAT_ARGB32, sz, sz);
+    cairo_t *cr = cairo_create (surface);
+    cairo_set_source_rgb(cr,0,0,0);
+    cairo_fill(cr);
 
     if(nparam == 3){
-        sz = stoi(param[1]);
         iterations = stol(param[2]);
     }
     Parameter<int> omega("omega", 7);
@@ -30,72 +46,56 @@ int main(int nparam, char** param) {
     delta=0.5;
     cout<< delta.getName() <<" "<< delta.getValue() <<endl;
 
-    cairo_surface_t *surface = cairo_image_surface_create (CAIRO_FORMAT_ARGB32, sz, sz);
-    cairo_t *cr = cairo_create (surface);
-    cairo_set_line_width (cr, 1);
-    cairo_set_source_rgb (cr, 0,0,0);
-    cairo_paint (cr);
-  //  cairo_set_operator (cr, CAIRO_OPERATOR_SOURCE);
-
-    QuiltIcon qi(0.6,0.2,0.3,0.4,0.2,0.3, sz, sz);
-
-    qi.setSz(sz, sz);
 
 
-    PointList hl;
+    QuiltIcon qi(0.6,0.2,0.3,0.4,0.2,0.3);
     Generator gg(&qi,iterations, &hl);
-    gg.go(Point2D(.7,.53));
-
-long maxhits = hl.freqTables[hl.COARSE]->maxHits;
-
-   long fdiff = maxhits -1 ; //maxx -minn;
-
-    PointList::FrequencyList2DConstIter iter = hl.freqTables[hl.COARSE]->frequencyListPtr->begin();
-
-        while(iter != hl.freqTables[hl.COARSE]->frequencyListPtr->end()){
-        int x= iter->first.val[0]; //(points+i)->x;
-        int y= iter->first.val[1]; //((points+i)->y);
-        long hits = iter->second;
-     //   cout << "looking for " << (points+i)->x <<" "<< (points+i)->y <<endl;
-            /*****
-        PointFrequency::const_iterator pp = hl.hitPointList.find(*(points+i));
-        if(pp!= hl.hitPointList.cend())
-        {
-             hits = pp->second;
-      //       cout<< "found!! " <<hits <<endl;
-        }
-             ******************/
-      //  cout << "maxhits " <<maxhits <<endl;
-        double opacity = (double)(hits - 1)/fdiff;
-     //   cout <<"opacity " << opacity <<endl;
-//opacity=0.3*opacity;
-        opacity = (opacity <= 0)?1:opacity;
-        opacity = (opacity >1)?1:opacity;
-        cairo_set_source_rgba (cr, 0.2, 0.95*opacity, .9,opacity);
-        cairo_move_to (cr, x, y+0.5);
-        cairo_line_to (cr, x+0.5, y+0.5);
-        cairo_stroke (cr);
-        iter++;
+    try {
+        gg.go(Point2D(.7, .53));
+    }catch (std::exception xx){
+        cout<< "Error: " << xx.what() <<endl;
+        return 1;
+    }catch (...){
+        cout<<"error some other exception" <<endl;
+        return 1;
     }
 
-  //  std::cout << "After painting complete. " <<t << '\n';
+    cout<< "done go!" <<endl;
+    try{
+//    hl.addTable(hl.COARSE);
+        hl.addPoints();
+}catch (std::exception xx){
+    cout<< "Error: " << xx.what() <<endl;
+    return 1;
+}catch (...){
+    cout<<"error some other exception" <<endl;
+    return 1;
+}
+hl.addTable(400);
+    hl.addPoints();
+cout<<"done convert" <<endl;
+long maxhits = hl.freqTables[sz].maxHits;
+cout<< "maxHits for " << sz <<" is "<< maxhits<<endl;
+   long fdiff = maxhits>1?maxhits-1: 1; //maxx -minn;
+    double bg[] ={0.0,0.0,0.0,1};
+    double min[]= {0.0,0.0,0.5,0.5};
+    double max[] = {1,0.0,0.0,0.9};
+
+   PaintIcon paintIcon(sz,sz,bg,min,max,&hl);
+    paintIcon.paint();
+
+    std::cout << "After painting complete. "  << '\n';
 
 
- //   cout<<"numPoints=" <<hl.numPoints <<endl;
+    std::time_t result = std::time(nullptr);
+    const std::string ddate = to_string(result).data();
+    std::string  fnBase= "img_a_";
+    string dname = fnBase+ddate + ".sym";
+    std::ofstream outy(dname,std::ios_base::out);
+    outy<< hl;
+    outy.flush(); outy.close();
 
-
-    cairo_surface_write_to_png (surface, "/home/peter/img_a.png");
-    cairo_destroy (cr);
-    cairo_surface_destroy (surface);
-
-/*   hl.updateFrequencyTable();
-    long * freqs = hl.getDataFrequencies();
-    for(int i=0;i<100;i++){
-        cout << *(freqs+i) << " " ;
-
-    }
-    */
-
+    cout<< hl.rawSize() << " "<< maxhits <<endl;
     cout << "Done!" << endl;
 //    HitList newHL (100,hl);
  //   cout<<"nnewHL numPoints=" <<newHL.numPoints <<endl;
