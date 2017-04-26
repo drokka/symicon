@@ -23,10 +23,31 @@ emu::symicon::PaintIcon::PaintIcon(int xSz, int ySz, double *bgRGBA, double *min
 }
 void emu::symicon::PaintIcon::paint() {
 
-    cairo_surface_t *surface = cairo_image_surface_create (CAIRO_FORMAT_ARGB32, xSz, ySz);
+    cairo_format_t cairoFormat;
+    if(useAlpha){
+        cairoFormat=CAIRO_FORMAT_ARGB32;
+    }
+    else {
+        cairoFormat=CAIRO_FORMAT_RGB30;
+    }
+    cairo_surface_t *surface = cairo_image_surface_create (cairoFormat, xSz, ySz);
     cairo_t *cr = cairo_create (surface);
-    cairo_set_source_rgb(cr,bgRGBA[0],bgRGBA[1],bgRGBA[2]);
-    cairo_fill(cr);
+    if(useAlpha){
+        cairo_set_source_rgba(cr,bgRGBA[0],bgRGBA[1],bgRGBA[2], bgRGBA[3]);
+    }
+    else
+    {
+        cairo_set_source_rgb(cr,bgRGBA[0],bgRGBA[1],bgRGBA[2]);
+
+    }
+    cairo_save(cr);
+    cairo_set_operator(cr, CAIRO_OPERATOR_SOURCE);
+    if(!useAlpha) {
+        cairo_paint(cr);
+    }else{
+        cairo_paint_with_alpha(cr, bgRGBA[3]);
+    }
+    cairo_restore(cr);
 
 
     emu::utility::FrequencyList2DConstIter iter = pointList->freqTables[xSz].frequencyList->begin();
@@ -46,7 +67,7 @@ void emu::symicon::PaintIcon::paint() {
          ******************/
         double rgba[] ={0,0,0,0};
         FrequencyData fd = pointList->freqTables[xSz];
-        simpleColourFn(minRGBA, maxRGBA, hits, fd, rgba);
+        colourFn(minRGBA, maxRGBA, hits, fd, rgba);
         paintPoint(cr, x, y, rgba);
         iter++;
     }
@@ -55,17 +76,24 @@ void emu::symicon::PaintIcon::paint() {
     const std::string ddate = to_string(result).data();
     std::string  fnBase= "img_a_";
     string ext = ".png";
-    string fname= fnBase + ddate + ext;
+    string fname= fnBase  +std::to_string(xSz)+ "_" + ddate + ext;
     //
     //fn.append(ddate).append(".png");
     cairo_surface_write_to_png (surface, fname.c_str());
+
     cairo_destroy (cr);
     cairo_surface_destroy (surface);
 
 }
 
 void emu::symicon::PaintIcon::paintPoint(cairo_t *cr, int x, int y, const double *rgba) const {
-    cairo_set_source_rgba (cr, rgba[0], rgba[1], rgba[2], rgba[3] );
+    if(useAlpha){
+        cairo_set_source_rgba (cr, rgba[0], rgba[1], rgba[2], rgba[3] );
+    }
+    else{
+        cairo_set_source_rgb (cr, rgba[0], rgba[1], rgba[2]);
+
+    }
     //     cairo_set_source_rgb (cr, 0.2, 0.95, .9);
     cairo_move_to (cr, x, y+0.5);
     cairo_line_to (cr, x+0.5, y+0.5);

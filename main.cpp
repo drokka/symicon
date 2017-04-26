@@ -12,6 +12,8 @@
 using namespace std;
 using namespace emu::symicon;
 
+void testColourFn(double *minRGBA, double *maxRGBA, long hits, FrequencyData &fd, double *rgbaOut) ;
+
 int main(int nparam, char** param) {
 
     long iterations = 1000000;
@@ -25,10 +27,6 @@ int main(int nparam, char** param) {
     int sz = 1600;
     hl.addTable(sz); //add a fine scale
     hl.addPoints();
-    cairo_surface_t *surface = cairo_image_surface_create (CAIRO_FORMAT_ARGB32, sz, sz);
-    cairo_t *cr = cairo_create (surface);
-    cairo_set_source_rgb(cr,0,0,0);
-    cairo_fill(cr);
 
     if(nparam == 3){
         iterations = stol(param[2]);
@@ -77,11 +75,13 @@ cout<<"done convert" <<endl;
 long maxhits = hl.freqTables[sz].maxHits;
 cout<< "maxHits for " << sz <<" is "<< maxhits<<endl;
    long fdiff = maxhits>1?maxhits-1: 1; //maxx -minn;
-    double bg[] ={0.0,0.0,0.0,1};
-    double min[]= {0.0,0.0,0.5,0.5};
-    double max[] = {1,0.0,0.0,0.9};
+    double bg[] ={0.0,0.0,0.0,.2};
+    double min[]= {0.0,0.0,1,0.5};
+    double max[] = {1,1,0.0,1.0};
 
-   PaintIcon paintIcon(sz,sz,bg,min,max,&hl);
+ //  PaintIcon paintIcon(sz,sz,bg,min,max,&hl);
+    PaintIcon paintIcon(sz,sz,bg,min,max,&hl,&testColourFn);
+    //paintIcon.setUseAlpha(false);
     paintIcon.paint();
 
     std::cout << "After painting complete. "  << '\n';
@@ -136,4 +136,27 @@ cout<< "maxHits for " << sz <<" is "<< maxhits<<endl;
     return 0;
 
     }
+
+void testColourFn(double *minRGBA, double *maxRGBA, long hits, FrequencyData &fd,
+                  double *rgbaOut) {
+    long maxhits = fd.maxHits;
+    // cout<< "maxHits for " << sz <<" is "<< maxhits<<endl;
+    long fdiff = maxhits>1?maxhits-1: 1; //maxx -minn;
+
+    //  cout << "maxhits " <<maxhits <<endl;
+    double opacity = (double)((double)hits/(double)maxhits);
+    //   cout <<"opacity " << opacity <<endl;std::max(
+//opacity=0.3*opacity;
+    //bound opacity between 0 and 1.
+    opacity = (opacity <= .5)?0.5:opacity;
+   // opacity = (opacity >1)?1:opacity;
+    double span1= maxRGBA[0] - minRGBA[0];
+    double span2= maxRGBA[1] - minRGBA[1];
+    double span3= maxRGBA[2] - minRGBA[2];
+
+    rgbaOut[0]= minRGBA[0] +span1*opacity;
+    rgbaOut[1]= minRGBA[1] +span2*opacity;
+    rgbaOut[2]= minRGBA[2] +span3*opacity;
+    rgbaOut[3]=opacity;
+}
     

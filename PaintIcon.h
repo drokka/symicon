@@ -21,6 +21,7 @@ namespace emu {
         double *minRGBA;
         double *maxRGBA;
         PointList *pointList;
+        bool useAlpha = false;
 
         typedef void (*ColourFn)(double min[4], double max[4], long frequency, FrequencyData &pointList, double * rgbaOut); //calculate RGBA to colourise frequency
 
@@ -35,6 +36,7 @@ namespace emu {
         void paint();
         void saveImage();
         void showImage();
+        void setUseAlpha(bool use){useAlpha = use;}
 
        // static ColourFn simpleColourFn;
     };
