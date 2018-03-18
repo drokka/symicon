@@ -25,16 +25,22 @@ namespace emu {
             typedef std::tuple<Parameter<double>, Parameter<double>, Parameter<double>, Parameter<double>,
                     Parameter<double>, Parameter<double> > Pt_t;
 
+
         public:
+            enum class QuiltType {
+                SQUARE, HEX, FRACTAL
+            };
+            QuiltType quiltType = QuiltType::SQUARE;
             static double pi;
             static double p2;
 
         public:
             QuiltIcon(const double _lambda, const double _alpha, const double _beta, const double _gamma,
-                      const double _omega, const double _ma) :
+                      const double _omega,
+                      const double _ma, QuiltType quiltType) :
                     lambda{new P_t("lambda", _lambda)}, alpha{new P_t("alpha", _alpha)},
                     beta{new P_t("beta", _beta)}, gamma{new P_t("gamma", _gamma)}, omega{new P_t("omega", _omega)},
-                    ma{new P_t("ma", _ma)} {
+                    ma{new P_t("ma", _ma)}, quiltType(quiltType) {
 
                 stored_inputs = make_tuple(shared_ptr<P_t>(lambda), shared_ptr<P_t>(alpha), shared_ptr<P_t>(beta),
                                            shared_ptr<P_t>(gamma),
@@ -66,6 +72,14 @@ namespace emu {
 
             static void generate1(double inputPoint[], double lambda, double alpha, double beta, double gamma,
                                   double omega, double ma);
+
+            static void
+            generateHex(double *inputPoint, double lambda, double alpha, double beta, double gamma, double omega,
+                        double ma);
+
+            void
+            generateFractal(double *inputPoint, double lambda, double alpha, double beta, double gamma, double omega,
+                            double ma);
         };
     }
 }

@@ -23,15 +23,18 @@ namespace emu {
         PointList *pointList;
         bool useAlpha = false;
 
-        typedef void (*ColourFn)(double min[4], double max[4], long frequency, FrequencyData &pointList, double * rgbaOut); //calculate RGBA to colourise frequency
 
-        ColourFn colourFn = 0;
+
     public:
+        typedef void (*ColourFn)(double min[4], double max[4], long frequency, FrequencyData &pointList,
+                                 double *rgbaOut); //calculate RGBA to colourise frequency
+
         PaintIcon(int xSz, int ySz, double *bgRGBA, double *minRGBA, double *maxRGBA, PointList *pointList,
                  ColourFn colourFn );
 
         PaintIcon(int xSz, int ySz, double *bgRGBA, double *minRGBA, double *maxRGBA, PointList *pointList);
 
+        ColourFn colourFn = 0;
         void paintPoint(cairo_t *cr, int x, int y, const double *rgba) const;
         void paint();
         void saveImage();

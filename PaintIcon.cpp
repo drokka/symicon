@@ -48,13 +48,25 @@ void emu::symicon::PaintIcon::paint() {
         cairo_paint_with_alpha(cr, bgRGBA[3]);
     }
     cairo_restore(cr);
+    FrequencyData &fd = pointList->freqTables[xSz];
+    cout << "paint max and range: " << fd.getMinX() << " " << fd.getMaxX() << " " << fd.getMinY() << " " << fd.getMaxY()
+         << " "
+         << fd.rangeX() << " " << fd.rangeY() << endl;
+    double rescaleX = 1.0;
+    double rescaleY = 1.0;
+    int minX = fd.minX;
+    int minY = fd.minY;
+    if (fd.rangeX() > xSz) {
+        rescaleX = (double) xSz / (double) fd.rangeX();
 
+    }
+    if (fd.rangeY() > ySz) { rescaleY = (double) ySz / (double) fd.rangeY(); }
 
     emu::utility::FrequencyList2DConstIter iter = pointList->freqTables[xSz].frequencyList->begin();
 
     while(iter != pointList->freqTables[xSz].frequencyList->end()){
-        int x= iter->first.val[0]; //(points+i)->x;
-        int y= iter->first.val[1]; //((points+i)->y);
+        int x = (int) (rescaleX * (iter->first.val[0] - minX)); //(points+i)->x;
+        int y = (int) (rescaleY * (iter->first.val[1] - minY)); //((points+i)->y);
         long hits = iter->second;
         //   cout << "looking for " << x <<" "<< y <<" " << hits <<endl;
         /*****
