@@ -7,11 +7,11 @@
 #include <ctime>
 #include <fstream>
 #include "SymIconApp.h"
+#include "symi_interface.cpp"
 
 using namespace std;
 using namespace emu::symicon;
 
-void testColourFn(double *minRGBA, double *maxRGBA, long hits, FrequencyData &fd, double *rgbaOut) ;
 
 int main(int nparam, char** param) {
 
@@ -23,6 +23,10 @@ int main(int nparam, char** param) {
         }
     }
 
+    long res = callSym(iterations);
+    cout << "got max hits:" << res << endl;
+
+/************************************************************************
     int sz = 1600;
 
     QuiltIcon::QuiltType quiltType = QuiltIcon::QuiltType::SQUARE;
@@ -74,31 +78,10 @@ int main(int nparam, char** param) {
     app.runGenerator();
     cout << "max hits: " << app.maxhits << endl;
     app.paint();
-
+************************************************************/
     return 0;
 
     }
 
-void testColourFn(double *minRGBA, double *maxRGBA, long hits, FrequencyData &fd,
-                  double *rgbaOut) {
-    long maxhits = fd.maxHits;
-    // cout<< "maxHits for " << sz <<" is "<< maxhits<<endl;
-    long fdiff = maxhits>1?maxhits-1: 1; //maxx -minn;
 
-    //  cout << "maxhits " <<maxhits <<endl;
-    double opacity = (double)((double)hits/(double)maxhits);
-    //   cout <<"opacity " << opacity <<endl;std::max(
-//opacity=0.3*opacity;
-    //bound opacity between 0 and 1.
-    opacity = (opacity <= .5)?0.5:opacity;
-   // opacity = (opacity >1)?1:opacity;
-    double span1= maxRGBA[0] - minRGBA[0];
-    double span2= maxRGBA[1] - minRGBA[1];
-    double span3= maxRGBA[2] - minRGBA[2];
-
-    rgbaOut[0]= minRGBA[0] +span1*opacity;
-    rgbaOut[1]= minRGBA[1] +span2*opacity;
-    rgbaOut[2]= minRGBA[2] +span3*opacity;
-    rgbaOut[3]=opacity;
-}
     

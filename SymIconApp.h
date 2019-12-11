@@ -50,9 +50,6 @@ namespace emu {
             Point2D initPoint;
 
 
-            double bg[];
-            double min[];
-            double max[];
 
             PaintIcon paintIcon;
 
@@ -67,6 +64,10 @@ namespace emu {
 
             long fdiff;
             long maxhits;
+
+            //           double bg[];
+            //          double min[];
+            //           double max[];
         };
     }
 }
