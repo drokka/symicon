@@ -6,15 +6,17 @@
 #define  DEFINE_SYMI_INTERFACE
 
 #include "SymIconApp.h"
+#include "ColourIcon.h"
 
 #include <iostream>
 #include <map>
 #include "QuiltIcon.h"
 
 #include "Generator.h"
-#include "PaintIcon.h"
 #include <ctime>
 #include <fstream>
+#include <vector>
+#include <assert.h>
 #include "SymIconApp.h"
 
 using namespace std;
@@ -64,7 +66,7 @@ static long callSym(long iterations) {
         double min[] = {0.0, 0.0, 1, 0.5};
         double max[] = {1, 1, 0.0, 1.0};
 
-        PaintIcon::ColourFn colourFn = testColourFn;
+        ColourIcon::ColourFn colourFn = testColourFn;
 
         SymIconApp app(iterations, initX, initY, quiltType, fnBase, sz, iconParams, numIconParams, bg, min, max,
                        colourFn);
@@ -74,6 +76,20 @@ static long callSym(long iterations) {
     } catch (...) {
         return 0;
     }
+}
+
+static void testColourIcon(){
+    int xSz =1000, ySz=1000; //Dimensions
+    double bgRGBA[4] = {2.0,0.0,1.1,5.5};
+    double minRGBA[4] = {0.0,0.1, 0.3, 0.5};
+    double maxRGBA[4] = {1.1, 1.2,1.3,1.4};
+    PointList pointList = PointList();
+    bool useAlpha = false;
+    vector<vector<double *> > colourArray = vector<vector<double *> >();
+
+    ColourIcon clrI = ColourIcon(xSz,ySz,bgRGBA,minRGBA,maxRGBA,&pointList,colourArray);
+    assert(colourArray.size() == 1000);
+    assert(colourArray.at(999).size()==1000);
 }
 
 static void testColourFn(double *minRGBA, double *maxRGBA, long hits, FrequencyData &fd,

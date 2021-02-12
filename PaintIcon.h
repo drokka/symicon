@@ -6,7 +6,6 @@
 #ifndef SYMICON_PAINTICON_H
 #define SYMICON_PAINTICON_H
 
-#include <cairo.h>
 #include "PointList.h"
 
 using namespace emu::utility;
